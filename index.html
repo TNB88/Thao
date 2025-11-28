@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Thảo Market</title>
+    <title>Thảo Market Pro UI</title>
 
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,155 +12,134 @@
 
     <link rel="apple-touch-icon" sizes="180x180" href="GEMI.png">
     <link rel="icon" type="image/jpg" sizes="512x512" href="GEMI.png">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-        /* --- GIAO DIỆN HIỆN ĐẠI & HIỆU ỨNG --- */
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: linear-gradient(135deg, #e0f7fa 0%, #e8f5e9 100%);
-            padding: 0; margin: 0; color: #333; padding-bottom: 60px; 
-            min-height: 100vh; overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent; 
+        /* --- BỘ GIAO DIỆN AURORA GLASSMORPHISM --- */
+        :root {
+            --primary-color: #0f3460;
+            --accent-color: #533483;
+            --accent-gradient: linear-gradient(135deg, #533483, #e94560);
+            --success-color: #00b894;
+            --danger-color: #d32f2f;
+            --text-color: #1a1a2e;
+            --input-bg: rgba(255, 255, 255, 0.7);
+            --card-glass: rgba(255, 255, 255, 0.75);
+            --inner-glass: rgba(255, 255, 255, 0.5);
         }
 
-        /* Marquee */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            margin: 0; padding: 0; color: var(--text-color);
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding-bottom: 40px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
         .marquee-container {
-            background: #FFF9C4; color: #D32F2F; padding: 10px 0;
-            white-space: nowrap; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            position: relative; z-index: 10;
+            width: 100%; background: rgba(255, 243, 205, 0.8); backdrop-filter: blur(5px);
+            color: #856404; padding: 12px 0; overflow: hidden; white-space: nowrap;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-weight: 700; font-size: 14px; text-transform: uppercase;
+            z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.3);
         }
-        .marquee-text {
-            display: inline-block; padding-left: 100%;
-            animation: marquee 15s linear infinite;
-            font-weight: 800; font-size: 14px; text-transform: uppercase;
-        }
+        .marquee-text { display: inline-block; padding-left: 100%; animation: marquee 20s linear infinite; }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
-        .main-content { padding: 15px; max-width: 600px; margin: 0 auto; position: relative; z-index: 5; }
+        .main-content-wrapper { padding: 20px; width: 100%; box-sizing: border-box; display: flex; justify-content: center; max-width: 600px; }
 
-        /* Header */
-        .header { text-align: center; margin-bottom: 15px; }
-        .app-title { 
-            font-size: 26px; font-weight: 900; 
-            background: -webkit-linear-gradient(#1b5e20, #4caf50);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-transform: uppercase; margin: 0; letter-spacing: 1px; 
+        .glass-card-main {
+            background-color: var(--card-glass); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.5); padding: 30px 25px; border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1), inset 0 0 0 0.5px rgba(255,255,255,0.4);
+            width: 100%; position: relative; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .date-display { font-size: 13px; color: #555; margin-top: 5px; font-style: italic; }
+        .glass-card-main::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.3), transparent 40%);
+            z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.5s ease;
+        }
+        @media (hover: hover) { .glass-card-main:hover::before { opacity: 1; } }
+        .glass-card-main > * { position: relative; z-index: 1; }
 
-        /* --- CARD TỔNG TIỀN & THANH MÁU (NEW) --- */
-        .total-card { 
-            background: linear-gradient(135deg, #2E7D32, #1B5E20); 
-            border-radius: 20px; padding: 20px; text-align: center; color: white; 
-            box-shadow: 0 10px 20px rgba(46, 125, 50, 0.4); 
-            margin-bottom: 25px; position: relative;
-            transition: all 0.3s;
-        }
-        /* Hiệu ứng rung khi lủng túi */
-        .total-card.shake {
-            animation: shake 0.5s;
-            background: linear-gradient(135deg, #D32F2F, #B71C1C) !important; /* Chuyển màu đỏ */
-            box-shadow: 0 10px 20px rgba(211, 47, 47, 0.4);
-        }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
+        .header { text-align: center; margin-bottom: 25px; }
+        .app-title { font-size: 28px; font-weight: 900; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin: 0; letter-spacing: 1px; }
+        .date-display { font-size: 14px; color: var(--primary-color); margin-top: 5px; font-weight: 600; opacity: 0.8; }
 
-        /* Input Ngân Sách */
-        .budget-control { display: flex; align-items: center; justify-content: center; margin-bottom: 5px; opacity: 0.9; font-size: 14px; }
-        .budget-input { 
-            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); 
-            color: white; border-radius: 5px; padding: 2px 8px; width: 100px; 
-            text-align: center; font-weight: bold; margin-left: 5px; font-size: 14px; outline: none;
+        .total-card {
+            background: linear-gradient(135deg, rgba(83, 52, 131, 0.8), rgba(233, 69, 96, 0.8)); backdrop-filter: blur(10px);
+            border-radius: 20px; padding: 25px; text-align: center; color: white;
+            box-shadow: 0 10px 25px rgba(83, 52, 131, 0.3); margin-bottom: 30px; position: relative;
+            border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s;
         }
-        .budget-input::placeholder { color: rgba(255,255,255,0.7); }
+        .total-card.shake { animation: shake 0.5s; background: linear-gradient(135deg, rgba(211, 47, 47, 0.9), rgba(183, 28, 28, 0.9)) !important; box-shadow: 0 10px 20px rgba(211, 47, 47, 0.5); }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
 
-        .total-value { font-size: 42px; font-weight: 800; margin: 0; text-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .item-count { font-size: 13px; opacity: 0.8; margin-bottom: 10px; display: block; }
+        .budget-control { display: flex; align-items: center; justify-content: center; margin-bottom: 10px; opacity: 0.9; font-size: 15px; font-weight: 600;}
+        .budget-input { background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5); color: white; border-radius: 8px; padding: 4px 10px; width: 110px; text-align: center; font-weight: 800; margin-left: 8px; font-size: 15px; outline: none; font-family: 'Montserrat', sans-serif; }
+        .budget-input:focus { background: rgba(255,255,255,0.4); border-color: white; }
+        .total-value { font-size: 48px; font-weight: 900; margin: 5px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .item-count { font-size: 14px; opacity: 0.9; margin-bottom: 15px; display: block; font-weight: 600; }
 
-        /* Thanh HP Bar */
-        .hp-bar-container {
-            width: 100%; height: 12px; background: rgba(0,0,0,0.3); border-radius: 10px;
-            overflow: hidden; margin: 10px 0 5px 0; border: 1px solid rgba(255,255,255,0.3);
-        }
-        .hp-bar-fill {
-            height: 100%; width: 0%; 
-            background: #76FF03; /* Màu xanh neon */
-            border-radius: 10px;
-            transition: width 0.5s ease, background 0.3s ease;
-            box-shadow: 0 0 10px #76FF03;
-        }
-        .budget-status { font-size: 13px; font-weight: 700; color: #FFF; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .hp-bar-container { width: 100%; height: 14px; background: rgba(0,0,0,0.2); border-radius: 10px; overflow: hidden; margin: 15px 0 8px 0; border: 1px solid rgba(255,255,255,0.3); box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+        .hp-bar-fill { height: 100%; width: 0%; background: #00b894; border-radius: 10px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease; box-shadow: 0 0 15px currentColor; }
+        .budget-status { font-size: 14px; font-weight: 700; color: #FFF; text-shadow: 0 1px 3px rgba(0,0,0,0.3); letter-spacing: 0.5px; }
 
-        /* Quick Tags */
-        .quick-tags-container { overflow-x: auto; white-space: nowrap; padding-bottom: 10px; margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
-        .quick-tag { 
-            display: inline-block; background: white; border: 1px solid #C8E6C9; color: #2E7D32; 
-            padding: 8px 18px; border-radius: 25px; margin-right: 8px; 
-            font-weight: 600; font-size: 14px; cursor: pointer; 
-            transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-        }
-        .quick-tag:active { transform: scale(0.95); background: #E8F5E9; }
+        .quick-tags-container { overflow-x: auto; white-space: nowrap; padding: 5px 0 15px 0; margin-bottom: 10px; -webkit-overflow-scrolling: touch; }
+        .quick-tag { display: inline-block; background: var(--inner-glass); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.4); color: var(--primary-color); padding: 10px 20px; border-radius: 25px; margin-right: 10px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .quick-tag:hover { transform: translateY(-3px); background: white; color: var(--accent-color); border-color: var(--accent-color);}
+        .quick-tag:active { transform: scale(0.95); }
 
-        /* Input Form */
-        .input-wrapper { 
-            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);
-            padding: 20px; border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); 
-            border: 1px solid rgba(255, 255, 255, 0.18); margin-bottom: 20px; 
-        }
-        .input-row { display: flex; gap: 10px; margin-bottom: 15px; }
-        input.std-input { 
-            flex: 1; padding: 15px; border: 1px solid #cfd8dc; border-radius: 12px; 
-            font-size: 16px; background: rgba(255,255,255,0.9); transition: all 0.3s; 
-        }
-        input.std-input:focus { outline: none; border-color: #4CAF50; box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); }
-        .btn-add { 
-            background: linear-gradient(45deg, #43A047, #66BB6A); color: white; border: none; 
-            padding: 15px; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; width: 100%; 
-            box-shadow: 0 4px 15px rgba(67, 160, 71, 0.4); 
-        }
-        .btn-add:active { transform: scale(0.98); }
+        .input-wrapper { background: var(--inner-glass); backdrop-filter: blur(10px); padding: 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.3); margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .input-row { display: flex; gap: 15px; margin-bottom: 20px; }
+        input.std-input { flex: 1; padding: 16px 20px; border: 1px solid rgba(200, 200, 200, 0.5); background-color: var(--input-bg); border-radius: 14px; font-size: 16px; font-family: 'Montserrat', sans-serif; transition: all 0.3s ease; color: var(--text-color); font-weight: 600; }
+        input.std-input:focus { outline: none; border-color: var(--accent-color); background-color: #fff; box-shadow: 0 0 0 4px rgba(83, 52, 131, 0.1); }
+        input.std-input::placeholder { color: #999; font-weight: 500; }
 
-        /* List Items */
-        .shopping-list { list-style: none; padding: 0; margin: 0; }
-        .shop-item { 
-            background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03); animation: slideIn 0.3s;
-        }
-        .item-name { font-weight: 700; font-size: 16px; color: #333; }
-        .item-price { color: #2E7D32; font-weight: 700; font-size: 15px; margin-top: 4px; }
-        .btn-delete { background: #ffebee; color: #d32f2f; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+        .btn-grad { width: 100%; padding: 16px; border: none; border-radius: 14px; font-size: 16px; font-weight: 800; color: white; cursor: pointer; background: var(--accent-gradient); box-shadow: 0 10px 20px -10px rgba(233, 69, 96, 0.5); position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; }
+        .btn-grad:hover { transform: translateY(-3px); box-shadow: 0 15px 30px -10px rgba(233, 69, 96, 0.7); }
+        .btn-grad:active { transform: scale(0.98); }
+        .btn-grad::after { content: ""; position: absolute; top: -50%; right: -50%; bottom: -50%; left: -50%; background: linear-gradient(to bottom, rgba(229, 172, 142, 0), rgba(255,255,255,0.5) 50%, rgba(229, 172, 142, 0)); transform: rotateZ(60deg) translate(-5em, 7.5em); opacity: 0; transition: all 0s; }
+        .btn-grad:hover::after { opacity: 1; transform: rotateZ(60deg) translate(1em, -9em); transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* Actions & History */
-        .action-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
-        .btn-action { padding: 14px; border: none; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; color: white; }
-        .btn-copy { background: linear-gradient(45deg, #1E88E5, #42A5F5); }
-        .btn-save { background: linear-gradient(45deg, #FB8C00, #FFA726); }
-        .btn-new { background: #eceff1; color: #455a64; width: 100%; margin-top: 15px; border: 1px solid #cfd8dc; }
+        .shopping-list { list-style: none; padding: 0; margin: 0 0 30px 0; }
+        .shop-item { background: var(--inner-glass); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 16px; padding: 18px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.03); animation: slideIn 0.4s ease; transition: transform 0.2s; }
+        .shop-item:hover { transform: translateX(5px); }
+        .item-name { font-weight: 700; font-size: 17px; color: var(--primary-color); }
+        .item-price { color: var(--accent-color); font-weight: 800; font-size: 16px; margin-top: 5px; }
 
-        .history-section { margin-top: 35px; border-top: 2px dashed #b2dfdb; padding-top: 25px; }
-        .history-summary { background: linear-gradient(to right, #FFF9C4, #FFF176); color: #E65100; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-        .history-list { max-height: 250px; overflow-y: auto; }
-        .history-item { font-size: 14px; padding: 12px 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; color: #555; background: rgba(255,255,255,0.5); margin-bottom: 5px; border-radius: 8px; }
+        .btn-delete { background: rgba(211, 47, 47, 0.1); color: var(--danger-color); border: none; width: 40px; height: 40px; border-radius: 12px; font-size: 20px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .btn-delete:hover { background: var(--danger-color); color: white; }
 
-        .footer-copyright { text-align: center; margin-top: 40px; margin-bottom: 10px; font-size: 12px; color: #78909c; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .action-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
+        .btn-action-copy { background: linear-gradient(135deg, #00b894, #00cec9); box-shadow: 0 10px 20px -10px rgba(0, 184, 148, 0.5); }
+        .btn-action-copy:hover { box-shadow: 0 15px 30px -10px rgba(0, 184, 148, 0.7); }
+        .btn-action-save { background: linear-gradient(135deg, #FF9800, #F57C00); box-shadow: 0 10px 20px -10px rgba(255, 152, 0, 0.5); }
+        .btn-action-save:hover { box-shadow: 0 15px 30px -10px rgba(255, 152, 0, 0.7); }
 
-        /* Magic Particle */
-        .magic-particle { position: fixed; pointer-events: none; width: 10px; height: 10px; background: rgba(76, 175, 80, 0.6); border-radius: 50%; transform: translate(-50%, -50%); animation: particle-fade 0.8s forwards; z-index: 9999; }
-        @keyframes particle-fade { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } 100% { transform: translate(-50%, -100px) scale(2); opacity: 0; } }
+        .btn-new { background: var(--inner-glass); color: var(--primary-color); margin-top: 20px; border: 2px solid rgba(83, 52, 131, 0.3); box-shadow: none; }
+        .btn-new:hover { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+
+        .history-section { margin-top: 40px; border-top: 2px dashed rgba(83, 52, 131, 0.3); padding-top: 30px; }
+        .history-title { font-weight: 900; color: var(--primary-color); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 18px; text-transform: uppercase;}
+        .btn-clear { background:none; border: 2px solid var(--danger-color); color:var(--danger-color); font-weight:bold; cursor:pointer; padding: 8px 15px; border-radius: 10px; transition: all 0.2s;}
+        .btn-clear:hover { background: var(--danger-color); color: white; }
+
+        .history-summary { background: linear-gradient(to right, rgba(255, 249, 196, 0.9), rgba(255, 241, 118, 0.9)); backdrop-filter: blur(5px); color: #E65100; padding: 20px; border-radius: 16px; margin-bottom: 25px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; font-size: 16px; box-shadow: 0 10px 20px rgba(251, 192, 45, 0.2); border: 1px solid rgba(255,255,255,0.5); }
+        .history-list { max-height: 300px; overflow-y: auto; padding-right: 5px;}
+        .history-list::-webkit-scrollbar { width: 6px; }
+        .history-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 10px; }
+        .history-list::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
+        .history-item { font-size: 15px; padding: 15px; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; background: var(--inner-glass); margin-bottom: 8px; border-radius: 12px; font-weight: 600; color: var(--primary-color); }
+        .history-total { color: var(--success-color); font-weight: 800; font-size: 16px; }
+        .footer-copyright { text-align: center; margin-top: 40px; font-size: 13px; color: var(--primary-color); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+
+        .magic-particle { position: fixed; pointer-events: none; width: 12px; height: 12px; background: rgba(83, 52, 131, 0.6); border-radius: 50%; transform: translate(-50%, -50%); animation: particle-fade 0.8s forwards; z-index: 9999; }
+        @keyframes particle-fade { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } 100% { transform: translate(-50%, -100px) scale(2.5); opacity: 0; } }
         @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
     </style>
 </head>
 <body>
@@ -171,93 +150,110 @@
         </div>
     </div>
 
-    <div class="main-content">
-        <div class="header">
-            <h1 class="app-title">🛒 Sổ Tay Đi Chợ</h1>
-            <div class="date-display" id="dateDisplay">Thứ ..., ngày ...</div>
-        </div>
+    <div class="main-content-wrapper">
+        <div class="glass-card-main" id="mainCard" onmousemove="handleMouseMove(event)" onmouseleave="resetCard()">
 
-        <div class="total-card" id="totalCard">
-            <div class="budget-control">
-                <span>🎯 Ngân sách:</span>
-                <input type="text" class="budget-input" id="budgetInput" value="500.000" onblur="updateBudget()" onkeyup="formatBudgetInput(this)">
+            <div class="header">
+                <h1 class="app-title">🛒 Sổ Tay Đi Chợ Pro</h1>
+                <div class="date-display" id="dateDisplay">Thứ ..., ngày ...</div>
             </div>
 
-            <div class="total-value" id="displayTotal">0</div>
-            <span class="item-count" id="countBadge">0 món</span>
+            <div class="total-card" id="totalCard">
+                <div class="budget-control">
+                    <span>🎯 Ngân sách:</span>
+                    <input type="text" class="budget-input" id="budgetInput" value="500.000" onblur="updateBudget()" onkeyup="formatBudgetInput(this)">
+                </div>
 
-            <div class="hp-bar-container">
-                <div class="hp-bar-fill" id="hpBar"></div>
+                <div class="total-value" id="displayTotal">0</div>
+                <span class="item-count" id="countBadge">0 món</span>
+
+                <div class="hp-bar-container">
+                    <div class="hp-bar-fill" id="hpBar"></div>
+                </div>
+                <div class="budget-status" id="budgetStatus">Đang giàu: 500.000 đ</div>
             </div>
-            <div class="budget-status" id="budgetStatus">Đang giàu: 500.000 đ</div>
-        </div>
 
-        <div class="quick-tags-container">
-            <div class="quick-tag" onclick="quickFill('🐷 Thịt Heo')">🐷 Thịt Heo</div>
-            <div class="quick-tag" onclick="quickFill('🐔 Thịt Gà')">🐔 Thịt Gà</div>
-            <div class="quick-tag" onclick="quickFill('🐟 Cá')">🐟 Cá</div>
-            <div class="quick-tag" onclick="quickFill('🥩 Thịt Bò')">🥩 Thịt Bò</div>
-            <div class="quick-tag" onclick="quickFill('🥬 Rau Củ')">🥬 Rau Củ</div>
-            <div class="quick-tag" onclick="quickFill('🌱 Giá Đỗ')">🌱 Giá Đỗ</div>
-            <div class="quick-tag" onclick="quickFill('🥚 Trứng')">🥚 Trứng</div>
-            <div class="quick-tag" onclick="quickFill('🍇 Trái Cây')">🍇 Trái Cây</div>
-            <div class="quick-tag" onclick="quickFill('🧂 Gia Vị')">🧂 Gia Vị</div>
-            <div class="quick-tag" onclick="quickFill('🧻 Đồ Dùng')">🧻 Đồ Dùng</div>
-        </div>
-
-        <div class="input-wrapper">
-            <div class="input-row">
-                <input type="text" class="std-input" id="inputName" placeholder="Tên món (VD: Mắm tôm)" autocapitalize="sentences">
+            <div class="quick-tags-container">
+                <div class="quick-tag" onclick="quickFill('🍜 Ăn sáng')">🍜 Ăn sáng</div>
+                <div class="quick-tag" onclick="quickFill('☕ Uống cà phê')">☕ Uống cà phê</div>
+                <div class="quick-tag" onclick="quickFill('💸 Cho Âu Mượn Tiền')">💸 Cho Âu Mượn Tiền</div>
+                <div class="quick-tag" onclick="quickFill('🐷 Thịt Heo')">🐷 Thịt Heo</div>
+                <div class="quick-tag" onclick="quickFill('🐔 Thịt Gà')">🐔 Thịt Gà</div>
+                <div class="quick-tag" onclick="quickFill('🐟 Cá')">🐟 Cá</div>
+                <div class="quick-tag" onclick="quickFill('🥩 Thịt Bò')">🥩 Thịt Bò</div>
+                <div class="quick-tag" onclick="quickFill('🥬 Rau Củ')">🥬 Rau Củ</div>
+                <div class="quick-tag" onclick="quickFill('🌱 Giá Đỗ')">🌱 Giá Đỗ</div>
+                <div class="quick-tag" onclick="quickFill('🥚 Trứng')">🥚 Trứng</div>
+                <div class="quick-tag" onclick="quickFill('🍇 Trái Cây')">🍇 Trái Cây</div>
+                <div class="quick-tag" onclick="quickFill('🧂 Gia Vị')">🧂 Gia Vị</div>
+                <div class="quick-tag" onclick="quickFill('🧻 Đồ Dùng')">🧻 Đồ Dùng</div>
             </div>
-            <div class="input-row">
-                <input type="tel" class="std-input" id="inputPrice" placeholder="Giá tiền (VD: 50.000)" inputmode="decimal">
+
+            <div class="input-wrapper">
+                <div class="input-row">
+                    <input type="text" class="std-input" id="inputName" placeholder="Tên món (VD: Mắm tôm)" autocapitalize="sentences">
+                </div>
+                <div class="input-row">
+                    <input type="tel" class="std-input" id="inputPrice" placeholder="Giá tiền (VD: 50.000)" inputmode="decimal">
+                </div>
+                <button class="btn-grad btn-add" onclick="addItem()">
+                    <span>➕ THÊM VÀO GIỎ NGAY</span>
+                </button>
             </div>
-            <button class="btn-add" onclick="addItem()">➕ THÊM VÀO GIỎ</button>
-        </div>
 
-        <ul class="shopping-list" id="shopList"></ul>
+            <ul class="shopping-list" id="shopList"></ul>
 
-        <div class="action-bar">
-            <button class="btn-action btn-copy" onclick="copyReport()">📤 Gửi Báo Cáo Cho Xếp</button>
-            <button class="btn-action btn-save" onclick="saveHistory()">💾 Lưu Lịch Sử Đi Chợ</button>
-        </div>
-        <button class="btn-action btn-new" onclick="resetNewDay()">🔄 Đi chợ ngày mới</button>
-
-        <div class="history-section">
-            <div class="history-title" style="font-weight: 800; color: #37474f; margin-bottom: 10px; display: flex; justify-content: space-between;">
-                Lịch sử đi chợ
-                <button onclick="clearHistory()" style="background:none; border:none; color:#d32f2f; font-weight:bold; cursor:pointer;">🗑 Xóa sạch</button>
+            <div class="action-bar">
+                <button class="btn-grad btn-action-copy" onclick="copyReport()">📤 Gửi Báo Cáo</button>
+                <button class="btn-grad btn-action-save" onclick="saveHistory()">💾 Lưu Lịch Sử</button>
             </div>
-            <div class="history-summary">
-                Tổng "hổm rày": <span id="grandTotalDisplay">0</span>
-            </div>
-            <div class="history-list" id="historyList"></div>
-        </div>
+            <button class="btn-grad btn-new" onclick="resetNewDay()">🔄 Đi chợ ngày mới</button>
 
-        <div class="footer-copyright">© 2025 BẢN QUYỀN THUỘC BÌNH PRO</div>
+            <div class="history-section">
+                <div class="history-title">
+                    Lịch sử đi chợ
+                    <button onclick="clearHistory()" class="btn-clear">🗑 Xóa sạch</button>
+                </div>
+                <div class="history-summary">
+                    Tổng "hổm rày": <span id="grandTotalDisplay" style="font-size: 20px;">0 đ</span>
+                </div>
+                <div class="history-list" id="historyList"></div>
+            </div>
+
+            <div class="footer-copyright">© 2025 BẢN QUYỀN THUỘC BÌNH PRO</div>
+
+        </div>
     </div>
 
     <script>
-        // --- MAGIC CURSOR ---
+        function handleMouseMove(e) {
+            const card = e.currentTarget;
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+        }
+        function resetCard() { }
+
         document.addEventListener('mousemove', createParticle);
         document.addEventListener('touchmove', function(e) { createParticle(e.touches[0]); });
         function createParticle(e) {
             const particle = document.createElement('div'); particle.className = 'magic-particle';
             particle.style.left = e.pageX + 'px'; particle.style.top = e.pageY + 'px';
-            const colors = ['#4CAF50', '#81C784', '#A5D6A7', '#76FF03'];
+            const colors = ['#533483', '#e94560', '#0f3460', '#ff79c6'];
             particle.style.background = colors[Math.floor(Math.random() * colors.length)];
             document.body.appendChild(particle);
             setTimeout(() => { particle.remove(); }, 800);
         }
 
-        // --- LOGIC CHÍNH ---
         let cartItems = [];
         let shoppingHistory = [];
-        let budgetLimit = 500000; // Mặc định 500k
+        let budgetLimit = 500000;
 
         window.onload = function() {
             updateDate();
-            loadState(); 
+            loadState();
             loadHistory();
         };
 
@@ -271,7 +267,6 @@
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
 
-        // --- XỬ LÝ NGÂN SÁCH (MỚI) ---
         function formatBudgetInput(input) {
             let val = input.value.replace(/\D/g, '');
             if(val) input.value = parseInt(val).toLocaleString('vi-VN');
@@ -281,7 +276,7 @@
             let val = document.getElementById('budgetInput').value.replace(/\./g, '').replace(/,/g, '');
             budgetLimit = parseInt(val) || 0;
             saveState();
-            renderCart(); // Tính lại thanh máu
+            renderCart();
         }
 
         function renderCart() {
@@ -294,46 +289,43 @@
 
             listEl.innerHTML = "";
             let total = 0;
-            
+
             cartItems.slice().reverse().forEach(item => {
                 total += item.price;
                 const li = document.createElement('li'); li.className = 'shop-item';
-                li.innerHTML = `<div class="item-info"><span class="item-name">${item.name}</span><span class="item-price">${formatMoney(item.price)} đ</span></div><button class="btn-delete" onclick="deleteItem(${item.id})">✕</button>`;
+                li.innerHTML = `
+                    <div class="item-info">
+                        <span class="item-name">${item.name}</span>
+                        <div class="item-price">${formatMoney(item.price)} đ</div>
+                    </div>
+                    <button class="btn-delete" onclick="deleteItem(${item.id})">✕</button>
+                `;
                 listEl.appendChild(li);
             });
 
             totalEl.innerText = formatMoney(total);
             countEl.innerText = cartItems.length + " món";
 
-            // --- LOGIC THANH MÁU ---
             let percent = 0;
             if(budgetLimit > 0) percent = (total / budgetLimit) * 100;
             if(percent > 100) percent = 100;
-            
+
             hpBar.style.width = percent + "%";
 
-            // Reset trạng thái
             cardEl.classList.remove('shake');
-            
+
             if (total > budgetLimit) {
-                // LỦNG TÚI (Màu Đỏ & Rung)
-                hpBar.style.background = "#FF1744"; // Đỏ neon
-                hpBar.style.boxShadow = "0 0 10px #FF1744";
+                hpBar.style.background = "#d32f2f"; hpBar.style.boxShadow = "0 0 15px #d32f2f";
                 statusEl.innerText = `⚠️ LỦNG TÚI: -${formatMoney(total - budgetLimit)} đ`;
-                cardEl.classList.add('shake'); // Kích hoạt hiệu ứng rung
+                cardEl.classList.add('shake');
             } else if (percent >= 75) {
-                // CẢNH BÁO (Màu Cam)
-                hpBar.style.background = "#FFC400"; // Cam vàng
-                hpBar.style.boxShadow = "0 0 10px #FFC400";
+                hpBar.style.background = "#FF9800"; hpBar.style.boxShadow = "0 0 15px #FF9800";
                 statusEl.innerText = `⚠️ Sắp hết: Còn ${formatMoney(budgetLimit - total)} đ`;
             } else {
-                // AN TOÀN (Màu Xanh)
-                hpBar.style.background = "#76FF03"; // Xanh neon
-                hpBar.style.boxShadow = "0 0 10px #76FF03";
+                hpBar.style.background = "#00b894"; hpBar.style.boxShadow = "0 0 15px #00b894";
                 statusEl.innerText = `✅ Đang giàu: Còn ${formatMoney(budgetLimit - total)} đ`;
             }
         }
-        // ------------------------------
 
         function quickFill(name) {
             document.getElementById('inputName').value = name;
@@ -345,13 +337,13 @@
             const priceInput = document.getElementById('inputPrice');
             const name = nameInput.value.trim() || "Món lạ";
             let rawPrice = priceInput.value.replace(/\./g, '').replace(/,/g, '');
-            if (rawPrice.length <= 3 && rawPrice > 0) rawPrice = rawPrice + "000"; 
+            if (rawPrice.length <= 3 && rawPrice > 0) rawPrice = rawPrice + "000";
             const price = parseInt(rawPrice);
 
             if (!price || price <= 0) { alert("Nhập giá vào bạn êi!"); priceInput.focus(); return; }
             cartItems.push({ id: Date.now(), name: name, price: price });
             nameInput.value = ""; priceInput.value = ""; nameInput.focus();
-            renderCart(); saveState(); 
+            renderCart(); saveState();
         }
 
         function deleteItem(id) { cartItems = cartItems.filter(i => i.id !== id); renderCart(); saveState(); }
@@ -387,7 +379,7 @@
             let grandTotal = 0;
             shoppingHistory.slice().reverse().forEach(rec => {
                 grandTotal += rec.total;
-                histEl.innerHTML += `<div class="history-item"><span>${rec.date} (${rec.count} món)</span><span style="font-weight:bold; color:#2E7D32">${formatMoney(rec.total)}</span></div>`;
+                histEl.innerHTML += `<div class="history-item"><span>${rec.date} (${rec.count} món)</span><span class="history-total">${formatMoney(rec.total)} đ</span></div>`;
             });
             grandTotalEl.innerText = formatMoney(grandTotal) + " đ";
         }
@@ -395,18 +387,18 @@
         function clearHistory() { if(confirm("XÓA SẠCH LỊCH SỬ?")) { shoppingHistory = []; localStorage.removeItem('marketHistory'); loadHistory(); } }
         function resetNewDay() { if (cartItems.length > 0 && confirm("Đi chợ mới?")) { cartItems = []; renderCart(); localStorage.removeItem('currentCart'); } }
 
-        function saveState() { 
+        function saveState() {
             const state = { cart: cartItems, budget: budgetLimit };
-            localStorage.setItem('marketState', JSON.stringify(state)); 
+            localStorage.setItem('marketState', JSON.stringify(state));
         }
-        function loadState() { 
+        function loadState() {
             const saved = localStorage.getItem('marketState');
-            if (saved) { 
+            if (saved) {
                 const data = JSON.parse(saved);
                 cartItems = data.cart || [];
                 budgetLimit = data.budget || 500000;
                 document.getElementById('budgetInput').value = formatMoney(budgetLimit);
-                renderCart(); 
+                renderCart();
             }
         }
 
@@ -418,7 +410,4 @@
         priceInp.addEventListener("keypress", function(event) { if (event.key === "Enter") addItem(); });
     </script>
 </body>
-
 </html>
-
-
