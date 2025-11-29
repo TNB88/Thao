@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GIẢI CỨU THẢO V9 - CƯỚI HÀ BÁ</title>
+<style>
+    body {
+        margin: 0; background-color: #222;
+        height: 100vh; width: 100vw;
+        overflow: hidden; touch-action: none; user-select: none;
+        font-family: monospace;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    #game-container {
+        position: relative; width: 100%; height: 100%;
+        background: linear-gradient(to bottom, #000033, #4488ff);
+    }
+
+    canvas { display: block; width: 100%; height: 100%; }
+
+    #ui {
+        position: absolute; top: 20px; left: 20px;
+        color: white; font-size: 24px; font-weight: bold;
+        text-shadow: 2px 2px 0 #000; pointer-events: none; z-index: 10;
+    }
+
+    .overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.9); z-index: 20;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        color: white; text-align: center; padding: 20px; box-sizing: border-box;
+    }
+    
+    .btn {
+        padding: 15px 40px; font-size: 24px; font-weight: bold;
+        background: #00ff00; color: #000; border: none; border-radius: 50px;
+        cursor: pointer; margin-top: 20px; box-shadow: 0 0 20px #00ff00;
+        animation: pulse 1s infinite;
+    }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+    .warning {
+        color: red; font-size: 30px; font-weight: bold;
+        text-transform: uppercase; margin-bottom: 10px;
+        text-shadow: 0 0 10px red;
+        animation: flash 0.3s infinite;
+    }
+    @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+    .story-text { font-size: 18px; line-height: 1.6; margin-bottom: 20px; color: #fff; }
+    .highlight { color: yellow; font-weight: bold; font-size: 20px; }
+
+    /* Thông báo động viên */
+    #milestone-msg {
+        position: absolute; top: 30%; width: 100%; text-align: center;
+        font-size: 30px; font-weight: bold;
+        text-shadow: 0 0 10px white; display: none; z-index: 15; pointer-events: none;
+        background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #0000ff);
+        -webkit-background-clip: text; color: transparent; 
+        animation: popIn 0.5s;
+    }
+    @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1.2); opacity: 1; } }
+
+    /* Vùng cảm ứng */
+    #touch-zones {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        display: flex; z-index: 5;
+    }
+    .zone { width: 50%; height: 100%; background: transparent; }
+
+</style>
+</head>
+<body>
+
+    <div id="start-screen" class="overlay">
+        <div class="warning">⚠️ NHIỆM VỤ CẤP S ⚠️</div>
+        <div class="story-text">
+            Thảo đã bị bắt lên tầng mây thứ 99!<br>
+            Phần thưởng: <span class="highlight">CƯỚI THẢO LÀM VỢ ❤️</span>
+        </div>
+        <button class="btn" onclick="startGame()">LÊN ĐƯỜNG ▶️</button>
+    </div>
+
+    <div id="game-over" class="overlay" style="display:none;">
+        <h1 style="color:red; font-size: 40px;">TOANG RỒI! 😭</h1>
+        <p style="font-size: 20px; color: #ffcc00; margin: 20px 0; font-weight: bold;">
+            Cưới hà bá đi chứ cưới Thảo nổi gì 😥
+        </p>
+        <h2 id="final-score">Điểm: 0</h2>
+        <button class="btn" onclick="resetGame()">CÀY LẠI TỪ ĐẦU ↺</button>
+    </div>
+
+    <div id="game-container">
+        <div id="ui">CAO: <span id="score">0</span>m</div>
+        <div id="milestone-msg">CỐ LÊN! GẦN ĐẾN THẢO RỒI! ❤️</div>
+        <canvas id="canvas"></canvas>
+        <div id="touch-zones">
+            <div class="zone" id="left-zone"></div>
+            <div class="zone" id="right-zone"></div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const milestoneMsg = document.getElementById('milestone-msg');
+        let audioCtx;
+
+        function resize() {
+            canvas.width = document.getElementById('game-container').clientWidth;
+            canvas.height = document.getElementById('game-container').clientHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // --- HỆ THỐNG GIỌNG NÓI & ÂM THANH ---
+        const Sound = {
+            init: () => { 
+                if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+            },
+            speak: (text) => {
+                window.speechSynthesis.cancel(); // Dừng câu cũ
+                let msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'vi-VN'; msg.rate = 1.1; 
+                window.speechSynthesis.speak(msg);
+            },
+            play: (type) => {
+                if(!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                if(type=='jump') { 
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime+0.1);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime+0.1);
+                } else if (type=='boost') { 
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime+1.5);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime+1.5);
+                } else if (type=='cheer') { 
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.setValueAtTime(800, audioCtx.currentTime+0.1);
+                    gain.gain.value = 0.2; gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime+0.5);
+                } else if (type=='die') { 
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime+0.5);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime+0.5);
+                }
+                osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime+(type=='boost'?1.5:0.5));
+            }
+        };
+
+        // --- CẤU HÌNH ---
+        const GRAVITY = 0.4;
+        const JUMP_FORCE = 13;
+        const BOOST_FORCE = 40; 
+        const SPEED = 7;
+        
+        let gameRunning = false;
+        let score = 0;
+        let input = { left: false, right: false };
+        let nextTarget = 10000; // Mốc điểm bắt đầu: 10.000
+
+        const player = { x: 0, y: 0, w: 40, h: 50, dx: 0, dy: 0, color: "#fff" };
+        let clouds = []; let items = [];
+
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            Sound.init();
+            // CHỊ GOOGLE CHÚC PHÚC
+            Sound.speak("Chúc Bình Pờ Rô lên đường thành công!");
+            
+            resetGameData();
+            gameRunning = true;
+            loop();
+        }
+
+        function resetGameData() {
+            player.x = canvas.width / 2 - 20;
+            player.y = canvas.height - 150;
+            player.dx = 0; player.dy = -10;
+            score = 0;
+            nextTarget = 10000; // Reset mốc điểm
+            
+            clouds = []; items = [];
+            let y = canvas.height;
+            while(y > 0) { y -= 100; createGameObjects(y); }
+            clouds.push({x: canvas.width/2 - 50, y: canvas.height - 50, w: 100, h: 20, type: 0, speed: 0});
+        }
+
+        function createGameObjects(y) {
+            let type = Math.random() < 0.3 ? 1 : 0; 
+            let speedLevel = 2 + Math.floor(score / 2000); // Khó hơn xíu
+            let speed = type === 1 ? (Math.random() < 0.5 ? speedLevel : -speedLevel) : 0;
+            let cloud = { x: Math.random() * (canvas.width - 100), y: y, w: 80 + Math.random() * 40, h: 20, type: type, speed: speed };
+            clouds.push(cloud);
+            if (Math.random() < 0.1) items.push({ x: cloud.x + cloud.w/2 - 15, y: cloud.y - 40, w: 30, h: 30, type: 'star' });
+        }
+
+        // --- ĐIỀU KHIỂN ---
+        const leftZ = document.getElementById('left-zone');
+        const rightZ = document.getElementById('right-zone');
+        const handleStart = (dir) => (e) => { e.preventDefault(); input[dir] = true; };
+        const handleEnd = (dir) => (e) => { e.preventDefault(); input[dir] = false; };
+        leftZ.addEventListener('touchstart', handleStart('left'));
+        leftZ.addEventListener('touchend', handleEnd('left'));
+        rightZ.addEventListener('touchstart', handleStart('right'));
+        rightZ.addEventListener('touchend', handleEnd('right'));
+        window.addEventListener('keydown', e => { if(e.code==='ArrowLeft') input.left = true; if(e.code==='ArrowRight') input.right = true; });
+        window.addEventListener('keyup', e => { if(e.code==='ArrowLeft') input.left = false; if(e.code==='ArrowRight') input.right = false; });
+
+        // --- UPDATE ---
+        function update() {
+            if(!gameRunning) return;
+
+            if (input.left) player.x -= SPEED;
+            if (input.right) player.x += SPEED;
+            if (player.x + player.w < 0) player.x = canvas.width;
+            if (player.x > canvas.width) player.x = -player.w;
+
+            player.dy += GRAVITY;
+            player.y += player.dy;
+
+            // Camera cuộn
+            if (player.y < canvas.height / 2 && player.dy < 0) {
+                let shift = -player.dy;
+                player.y += shift;
+                score += Math.floor(shift);
+                document.getElementById('score').innerText = score;
+
+                // --- CHECK MỐC ĐIỂM (10k, 15k, 20k...) ---
+                if (score >= nextTarget) {
+                    showMilestone();
+                    nextTarget += 5000; // Tăng thêm 5000 cho mốc sau
+                }
+
+                clouds.forEach(c => c.y += shift);
+                items.forEach(i => i.y += shift);
+                clouds = clouds.filter(c => c.y < canvas.height);
+                items = items.filter(i => i.y < canvas.height);
+                let highest = Math.min(...clouds.map(c => c.y));
+                if (highest > 80) createGameObjects(highest - (Math.random() * 50 + 50));
+            }
+
+            // Mây
+            clouds.forEach(c => {
+                if (c.type === 1) {
+                    c.x += c.speed;
+                    if (c.x <= 0 || c.x + c.w >= canvas.width) c.speed *= -1;
+                }
+                if (player.dy > 0 && player.x + player.w*0.5 > c.x && player.x + player.w*0.5 < c.x + c.w && player.y + player.h > c.y && player.y + player.h < c.y + c.h + 10) {
+                    player.dy = -JUMP_FORCE; Sound.play('jump');
+                }
+            });
+
+            // Sao
+            items.forEach((item, index) => {
+                if (player.x < item.x + item.w && player.x + player.w > item.x && player.y < item.y + item.h && player.y + player.h > item.y) {
+                    items.splice(index, 1); player.dy = -BOOST_FORCE; Sound.play('boost');
+                }
+            });
+
+            // Chết
+            if (player.y > canvas.height) {
+                gameRunning = false;
+                Sound.play('die');
+                document.getElementById('game-over').style.display = 'flex';
+                document.getElementById('final-score').innerText = "Điểm: " + score;
+            }
+        }
+
+        function showMilestone() {
+            milestoneMsg.style.display = 'block';
+            Sound.play('cheer');
+            setTimeout(() => milestoneMsg.style.display = 'none', 3000);
+        }
+
+        // --- DRAW ---
+        let frame = 0;
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            frame++;
+            clouds.forEach(c => { ctx.fillStyle = c.type === 1 ? "#ffccff" : "white"; drawCloudShape(c.x, c.y, c.w, c.h); });
+            items.forEach(i => { ctx.save(); ctx.translate(i.x+i.w/2, i.y+i.h/2); ctx.rotate(frame*0.1); ctx.beginPath(); ctx.fillStyle=`hsl(${frame*10},100%,60%)`; ctx.shadowBlur=20; ctx.shadowColor=ctx.fillStyle; for(let k=0;k<5;k++){ctx.lineTo(Math.cos((18+k*72)/180*Math.PI)*15, -Math.sin((18+k*72)/180*Math.PI)*15);ctx.lineTo(Math.cos((54+k*72)/180*Math.PI)*6, -Math.sin((54+k*72)/180*Math.PI)*6);} ctx.closePath(); ctx.fill(); ctx.restore(); });
+
+            ctx.fillStyle = "#555"; ctx.fillRect(player.x, player.y+10, player.w, player.h-10);
+            ctx.fillStyle = "#ff0055"; ctx.fillRect(player.x-5, player.y-5, player.w+10, 25);
+            ctx.fillStyle = "#00ffff"; ctx.shadowBlur=10; ctx.shadowColor="#00ffff"; ctx.fillRect(player.x+10, player.y+5, player.w-20, 10); ctx.shadowBlur=0;
+            if (player.dy < -20) { ctx.fillStyle = `hsl(${Math.random()*60}, 100%, 50%)`; ctx.beginPath(); ctx.moveTo(player.x, player.y+player.h); ctx.lineTo(player.x+player.w/2, player.y+player.h+50); ctx.lineTo(player.x+player.w, player.y+player.h); ctx.fill(); } 
+            else if (player.dy < 0) { ctx.fillStyle = "orange"; ctx.beginPath(); ctx.moveTo(player.x+10, player.y+player.h); ctx.lineTo(player.x+20, player.y+player.h+Math.random()*20); ctx.lineTo(player.x+30, player.y+player.h); ctx.fill(); }
+        }
+
+        function drawCloudShape(x, y, w, h) {
+            ctx.beginPath(); ctx.ellipse(x+w/2, y+h/2, w/2, h/2, 0, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle="rgba(255,255,255,0.5)"; ctx.beginPath(); ctx.arc(x+w*0.2, y+h*0.3, h*0.6, 0, Math.PI*2); ctx.arc(x+w*0.8, y+h*0.3, h*0.6, 0, Math.PI*2); ctx.fill();
+        }
+
+        function loop() { update(); draw(); if(gameRunning) requestAnimationFrame(loop); }
+        function resetGame() { document.getElementById('game-over').style.display='none'; startGame(); }
+    </script>
+</body>
+</html>
