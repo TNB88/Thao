@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>THẢO ĐI CHỢ</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#020205">
+
+<meta name="apple-mobile-web-app-title" content="THẢO ĐI CHỢ">
+
+<link rel="apple-touch-icon" href="GEMI.png">
+<link rel="icon" type="image/png" sizes="512x512" href="GEMI.png">
+<link rel="icon" type="image/png" sizes="192x192" href="GEMI.png">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    body {
+        background-color: #020205; color: #00f3ff;
+        font-family: 'Courier New', sans-serif;
+        display: flex; flex-direction: column; align-items: center;
+        min-height: 100vh; margin: 0; padding: 20px;
+        padding-bottom: 80px; /* Tăng padding dưới để tránh bị footer che */
+        background-image: radial-gradient(circle at 50% 50%, #112 0%, #000 100%);
+        box-sizing: border-box;
+    }
+
+    /* --- AVATAR --- */
+    .avatar-container {
+        position: relative; width: 150px; height: 150px;
+        display: flex; justify-content: center; align-items: center;
+        margin-bottom: 20px; margin-top: 20px;
+    }
+    .avatar {
+        width: 100px; height: 100px; border-radius: 50%;
+        /* Ảnh Avatar này ông có thể thay bằng ảnh mặt ông nếu thích */
+        background-image: url('BINHPRO.jpg');
+        background-size: cover; z-index: 2;
+        border: 2px solid #00f3ff;
+        box-shadow: 0 0 20px #00f3ff, inset 0 0 20px #00f3ff;
+    }
+    .ring {
+        position: absolute; border-radius: 50%; border: 2px solid transparent;
+        border-top: 2px solid #00f3ff; border-bottom: 2px solid #00f3ff;
+    }
+    .r1 { width: 130px; height: 130px; animation: spin 4s linear infinite; box-shadow: 0 0 10px #00f3ff; }
+    .r2 { width: 160px; height: 160px; border: 1px dashed rgba(0, 243, 255, 0.5); animation: spin 15s linear infinite reverse; opacity: 0.4; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    h1 { text-transform: uppercase; letter-spacing: 5px; text-shadow: 0 0 15px #00f3ff; margin: 0; text-align: center; }
+    p { color: rgba(0, 243, 255, 0.7); font-size: 12px; margin-bottom: 40px; letter-spacing: 2px; text-align: center; }
+
+    /* --- LINK LIST (Đã cập nhật style cho phù hợp với code mới) --- */
+    .link-list {
+        width: 100%; max-width: 420px;
+        display: flex; flex-direction: column; gap: 20px;
+    }
+
+    /* Style chung cho các nút (bao gồm cả class .btn cũ và .menu-item mới) */
+    .btn, .menu-item {
+        position: relative; padding: 20px 25px;
+        text-decoration: none; color: #00f3ff;
+        background: rgba(0, 20, 30, 0.6);
+        border: 1px solid rgba(0, 243, 255, 0.3);
+        border-left: 4px solid #00f3ff; border-radius: 4px;
+        overflow: hidden; transition: all 0.4s ease-out;
+        font-weight: bold; text-transform: uppercase; letter-spacing: 3px;
+        display: flex; align-items: center; justify-content: flex-start;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        backdrop-filter: blur(5px);
+        cursor: pointer; /* Thêm con trỏ tay */
+    }
+    .btn::before, .menu-item::before {
+        content: ''; position: absolute; top: 0; left: -150%;
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.5), transparent);
+        transform: skewX(-20deg); animation: scan-btn 4s infinite ease-in-out; pointer-events: none;
+    }
+    @keyframes scan-btn { 0% { left: -150%; } 100% { left: 150%; } }
+    .btn:hover, .menu-item:hover {
+        background: rgba(0, 243, 255, 0.15);
+        box-shadow: 0 0 30px rgba(0, 243, 255, 0.5), inset 0 0 10px rgba(0, 243, 255, 0.3);
+        border-color: #00f3ff; letter-spacing: 5px; transform: scale(1.02) translateX(5px);
+    }
+    .btn span, .menu-item i { margin-right: 15px; font-size: 1.2em;}
+
+    /* Style riêng cho nút "Nhịp Đập Tình Yêu" (.love-zone) */
+    .love-zone {
+        color: #ff3333; border-color: rgba(255, 51, 51, 0.3); border-left-color: #ff3333;
+    }
+    .love-zone::before { background: linear-gradient(90deg, transparent, rgba(255, 51, 51, 0.5), transparent); }
+    .love-zone:hover {
+        background: rgba(255, 51, 51, 0.15);
+        box-shadow: 0 0 30px rgba(255, 51, 51, 0.5);
+        border-color: #ff3333; letter-spacing: 5px; transform: scale(1.02) translateX(5px);
+    }
+
+    /* Hiệu ứng trái tim đập */
+    @keyframes heartbeat {
+        0% { transform: scale(1); } 25% { transform: scale(1.1); } 40% { transform: scale(1); } 60% { transform: scale(1.1); } 100% { transform: scale(1); }
+    }
+    .heartbeat { animation: heartbeat 1.2s infinite; }
+
+    /* --- FOOTER MARQUEE --- */
+    .footer-bar {
+        position: fixed; bottom: 0; left: 0; width: 100%;
+        background: rgba(0, 20, 30, 0.95);
+        border-top: 1px solid #00f3ff;
+        color: #00f3ff; padding: 10px 0;
+        white-space: nowrap; overflow: hidden;
+        font-weight: bold; font-size: 14px;
+        box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        z-index: 100;
+        backdrop-filter: blur(5px);
+    }
+    .scrolling-text {
+        display: inline-block; padding-left: 100%;
+        animation: scroll-left 20s linear infinite;
+    }
+    @keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+
+    /* --- MODAL CSS (Hộp thoại mật khẩu) --- */
+    .modal {
+        display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center;
+        backdrop-filter: blur(5px);
+    }
+    .modal-content {
+        background: #020205; border: 2px solid #ff3333; border-radius: 10px;
+        padding: 30px; text-align: center; position: relative; width: 90%; max-width: 400px;
+        box-shadow: 0 0 30px rgba(255, 51, 51, 0.3); color: #00f3ff;
+    }
+    .close-btn {
+        position: absolute; top: 10px; right: 15px; color: #ff3333; font-size: 24px; cursor: pointer;
+    }
+    .modal h2 { color: #ff3333; margin-top: 0; }
+    .modal p { color: rgba(0, 243, 255, 0.8); }
+    #passwordInput {
+        width: 80%; padding: 15px; margin: 20px 0; background: rgba(0,0,0,0.5);
+        border: 1px solid #00f3ff; color: #00f3ff; text-align: center; font-size: 18px; outline: none;
+    }
+    #submitPassword {
+        padding: 15px 30px; background: #ff3333; color: white; border: none; font-weight: bold;
+        cursor: pointer; transition: all 0.3s; box-shadow: 0 0 15px rgba(255, 51, 51, 0.5);
+    }
+    #submitPassword:hover { background: #cc0000; box-shadow: 0 0 30px rgba(255, 51, 51, 0.8); }
+
+</style>
+</head>
+<body>
+
+    <div class="avatar-container">
+        <div class="ring r1"></div>
+        <div class="ring r2"></div>
+        <div class="avatar"></div>
+    </div>
+    <h1>BÌNH PRO</h1>
+    <p>/// SYSTEM STATUS: ONLINE ///</p>
+
+    <div class="link-list">
+        <a href="ThaoDiCho.html" class="btn"><span>🛒</span>Thảo Đi Chợ</a>
+        <a href="GiaiCuuThao.html" class="btn"><span>❤️</span>Trò Chơi Giải Cứu Thảo</a>
+        <a href="FlappyRambo.html" class="btn"><span>🎮</span>Flappy Rambo</a>
+        
+        <a href="secret.html" class="menu-item">
+            <i class="fas fa-user-secret"></i> TRÒ CHƠI BÍ ẨN 🤫
+        </a>
+        <div class="menu-item love-zone" id="loveZoneBtn">
+            <i class="fas fa-heart heartbeat"></i> <span style="margin-left: 10px;">NHỊP ĐẬP TÌNH YÊU</span>
+        </div>
+        </div> <div class="footer-bar">
+        <div class="scrolling-text">
+            /// WELCOME TO BINH PRO SYSTEM /// NƠI BÍ MẬT CỦA HAI TA /// HỆ THỐNG ĐANG HOẠT ĐỘNG 100% CÔNG SUẤT /// DÙ CÓ CHUYỆN GÌ ĐI NỮA ANH VẪN NHỚ ĐẾN EM ///
+        </div>
+    </div>
+
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2><i class="fas fa-lock"></i> MẬT MÃ TRÁI TIM</h2>
+            <p>Nhập mật khẩu để mở khóa thế giới riêng của chúng ta.</p>
+            <input type="password" id="passwordInput" placeholder="Nhập mật khẩu...">
+            <button id="submitPassword">MỞ KHÓA <i class="fas fa-key"></i></button>
+            <p id="errorMessage" style="color: #ff4d4d; display: none; margin-top: 10px;"><i class="fas fa-exclamation-circle"></i> Mật khẩu không đúng!</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
