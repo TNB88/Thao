@@ -1,0 +1,86 @@
+/* ... (CSS cũ giữ nguyên) ... */
+
+/* --- HIỆU ỨNG MỚI ĐÃ CHỈNH SỬA --- */
+
+/* 1. Hiệu ứng trái tim đập (MẠNH HƠN) */
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    15% { transform: scale(1.4); } /* Phóng to 40% (cũ là 15%) => Nhìn đập mạnh hơn */
+    30% { transform: scale(1); }
+    45% { transform: scale(1.25); } /* Nhịp phụ cũng to hơn */
+    60% { transform: scale(1); }
+    100% { transform: scale(1); }
+}
+
+.heartbeat {
+    display: inline-block; /* Bắt buộc để transform hoạt động mượt */
+    animation: heartbeat 1.3s infinite ease-in-out;
+    color: #ff3333; 
+    text-shadow: 0 0 15px rgba(255, 51, 51, 1); /* Phát sáng rực rỡ hơn */
+    font-size: 1.8em !important; /* QUAN TRỌNG: Tăng kích thước trái tim lên to bự */
+    vertical-align: middle; /* Căn giữa với dòng chữ */
+}
+
+/* 2. Style cho nút "Nhịp Đập Tình Yêu" */
+.love-zone {
+    background: linear-gradient(to right, #2c0000, #4a0000);
+    border-color: #ff3333;
+    color: #ff3333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex; /* Đảm bảo căn giữa nội dung */
+    align-items: center; /* Căn giữa dọc */
+}
+
+.love-zone:hover {
+    background: linear-gradient(to right, #4a0000, #660000);
+    box-shadow: 0 0 25px rgba(255, 51, 51, 0.8); /* Tăng độ sáng khi di chuột vào */
+    transform: translateY(-2px);
+}
+
+/* 3. Style cho Hộp thoại (Modal) - (Giữ nguyên như bạn gửi) */
+.modal {
+    display: none; position: fixed; z-index: 9999;
+    left: 0; top: 0; width: 100%; height: 100%;
+    overflow: auto; background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+}
+
+.modal-content {
+    background: linear-gradient(145deg, #0a0a0a, #2b0000);
+    padding: 40px; border: 2px solid #ff3333;
+    width: 90%; max-width: 400px; border-radius: 20px;
+    text-align: center; color: #00ffff;
+    box-shadow: 0 0 30px rgba(255, 51, 51, 0.4);
+    position: relative; animation: modalFadeIn 0.4s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.close-btn {
+    color: #ff3333; position: absolute; top: 15px; right: 20px;
+    font-size: 30px; font-weight: bold; cursor: pointer; transition: color 0.3s;
+}
+.close-btn:hover { color: #fff; }
+
+.modal-content h2 { margin-top: 0; color: #ff3333; text-transform: uppercase; letter-spacing: 1px; }
+.modal-content p { color: #ccc; font-size: 14px; margin-bottom: 25px; }
+
+.modal-content input[type="password"] {
+    width: 100%; padding: 15px; margin-bottom: 20px; box-sizing: border-box;
+    background-color: #000; border: 1px solid #00ffff; color: #00ffff;
+    border-radius: 8px; font-family: 'Courier New', Courier, monospace;
+    font-size: 16px; text-align: center; letter-spacing: 2px;
+}
+.modal-content input[type="password"]:focus { outline: none; box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+
+.modal-content button {
+    background-color: #ff3333; color: white; padding: 15px 30px; border: none;
+    border-radius: 30px; cursor: pointer; font-size: 16px; font-weight: bold;
+    text-transform: uppercase; transition: all 0.3s; width: 100%;
+}
+.modal-content button:hover { background-color: #cc0000; box-shadow: 0 0 15px rgba(255, 51, 51, 0.6); }
