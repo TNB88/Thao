@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vòng Quay Bình Pro</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            color: #f1c40f;
+            text-shadow: 2px 2px #c0392b;
+            margin-bottom: 20px;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin-bottom: 30px;
+        }
+
+        canvas {
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        /* Cái mũi tên chỉ định */
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid #e74c3c;
+            z-index: 10;
+            filter: drop-shadow(0 4px 2px rgba(0,0,0,0.3));
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 20px;
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px #d35400;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        button:active {
+            box-shadow: 0 2px #d35400;
+            transform: translateY(3px);
+        }
+
+        button:disabled {
+            background-color: #95a5a6;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2ecc71;
+            text-align: center;
+            min-height: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>VÒNG QUAY BÌNH PRO</h1>
+
+    <div class="wheel-container">
+        <div class="pointer"></div>
+        <canvas id="canvas" width="300" height="300"></canvas>
+    </div>
+
+    <button id="spinBtn">QUAY NGAY</button>
+    <div id="result"></div>
+
+    <audio id="spinSound" src="https://www.soundjay.com/misc/sounds/wind-chime-1.mp3"></audio>
+    <audio id="winSound" src="https://www.soundjay.com/human/sounds/applause-01.mp3"></audio>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const spinBtn = document.getElementById("spinBtn");
+        const resultDiv = document.getElementById("result");
+        const spinSound = document.getElementById("spinSound");
+        const winSound = document.getElementById("winSound");
+
+        // Danh sách quà của ông đây
+        const prizes = [
+            "Quay lại lần nữa",
+            "Quần lọt khe 300k",
+            "Son môi 500k",
+            "Tặng Bình áo xanh"
+        ];
+
+        // Màu sắc cho từng ô (xen kẽ cho đẹp)
+        const colors = ["#3498db", "#e74c3c", "#f1c40f", "#9b59b6"];
+
+        let startAngle = 0;
+        const arc = Math.PI / (prizes.length / 2);
+        let spinTimeout = null;
+        let currentRotation = 0;
+
+        // Vẽ vòng quay
+        function drawRouletteWheel() {
+            const outsideRadius = 140;
+            const textRadius = 100;
+            const insideRadius = 0;
+
+            ctx.clearRect(0,0,300,300);
+
+            for(let i = 0; i < prizes.length; i++) {
+                const angle = startAngle + i * arc;
+                ctx.fillStyle = colors[i];
+
+                ctx.beginPath();
+                ctx.arc(150, 150, outsideRadius, angle, angle + arc, false);
+                ctx.arc(150, 150, insideRadius, angle + arc, angle, true);
+                ctx.stroke();
+                ctx.fill();
+
+                ctx.save();
+                ctx.fillStyle = "white";
+                ctx.font = 'bold 14px Arial';
+                ctx.translate(150 + Math.cos(angle + arc / 2) * textRadius, 
+                              150 + Math.sin(angle + arc / 2) * textRadius);
+                ctx.rotate(angle + arc / 2 + Math.PI / 2);
+                const text = prizes[i];
+                ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+                ctx.restore();
+            }
+        }
+
+        drawRouletteWheel();
+
+        // Xử lý quay
+        spinBtn.addEventListener("click", () => {
+            // Mẹo vượt lỗi chặn âm thanh của Apple:
+            // Phải play âm thanh ngay trong sự kiện click đầu tiên
+            spinSound.currentTime = 0;
+            spinSound.play().catch(e => console.log("Chưa tương tác, chưa có tiếng"));
+            winSound.pause();
+            winSound.currentTime = 0;
+
+            spinBtn.disabled = true;
+            resultDiv.innerHTML = "Đang quay... cầu nguyện đi cưng!";
+            
+            // Tính toán góc quay ngẫu nhiên (ít nhất 5 vòng = 1800 độ)
+            const spinAngle = Math.floor(2000 + Math.random() * 2000); 
+            currentRotation += spinAngle;
+            
+            // Xoay canvas bằng CSS
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+            // Tính toán kết quả
+            // Thời gian quay là 5 giây (khớp với transition trong CSS)
+            setTimeout(() => {
+                calculateResult(currentRotation);
+                spinBtn.disabled = false;
+                spinSound.pause();
+                winSound.play(); // Trúng thưởng thì vỗ tay
+            }, 5000);
+        });
+
+        function calculateResult(rotation) {
+            // Chuẩn hóa góc về 0-360
+            const actualRotation = rotation % 360;
+            
+            // Do mũi tên chỉ ở trên cùng (270 độ hoặc -90 độ trong hệ tọa độ canvas)
+            // Ta cần tính ngược lại xem phần nào đang nằm ở vị trí đó
+            // Góc canvas bắt đầu từ bên phải (0 độ). Mũi tên ở trên (270 độ).
+            
+            // Công thức này đã được test để khớp với mũi tên ở trên
+            const degreesPerSlice = 360 / prizes.length;
+            
+            // Vị trí mũi tên so với vòng quay hiện tại
+            // +270 vì mũi tên ở trên đỉnh (tương đương 270 độ trong đường tròn lượng giác tính từ 0)
+            let index = Math.floor((360 - actualRotation + 270) % 360 / degreesPerSlice);
+            
+            // Đảm bảo index hợp lệ
+            if (index >= prizes.length) index = 0;
+            
+            const text = prizes[index];
+            resultDiv.innerHTML = `Chúc mừng ông trúng: <br><span style="font-size:30px; color: yellow">${text}</span>`;
+            
+            if(text.includes("quần lọt khe")) {
+                resultDiv.innerHTML += " <br>👙 Mặc vào nhớ chụp hình gửi tôi nhé! hahaha";
+            }
+        }
+
+    </script>
+</body>
+</html>
