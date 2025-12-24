@@ -55,13 +55,13 @@
     h1 { text-transform: uppercase; letter-spacing: 5px; text-shadow: 0 0 15px #00f3ff; margin: 0; text-align: center; }
     p { color: rgba(0, 243, 255, 0.7); font-size: 12px; margin-bottom: 40px; letter-spacing: 2px; text-align: center; }
 
-    /* --- LINK LIST (Đã cập nhật style cho phù hợp với code mới) --- */
+    /* --- LINK LIST --- */
     .link-list {
         width: 100%; max-width: 420px;
         display: flex; flex-direction: column; gap: 20px;
     }
 
-    /* Style chung cho các nút (bao gồm cả class .btn cũ và .menu-item mới) */
+    /* Style chung cho các nút */
     .btn, .menu-item {
         position: relative; padding: 20px 25px;
         text-decoration: none; color: #00f3ff;
@@ -73,7 +73,7 @@
         display: flex; align-items: center; justify-content: flex-start;
         box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         backdrop-filter: blur(5px);
-        cursor: pointer; /* Thêm con trỏ tay */
+        cursor: pointer;
     }
     .btn::before, .menu-item::before {
         content: ''; position: absolute; top: 0; left: -150%;
@@ -89,7 +89,7 @@
     }
     .btn span, .menu-item i { margin-right: 15px; font-size: 1.2em;}
 
-    /* Style riêng cho nút "Nhịp Đập Tình Yêu" (.love-zone) */
+    /* Style riêng cho nút "Nhịp Đập Tình Yêu" */
     .love-zone {
         color: #ff3333; border-color: rgba(255, 51, 51, 0.3); border-left-color: #ff3333;
     }
@@ -124,87 +124,11 @@
     }
     @keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
-    /* --- MODAL CSS (Hộp thoại mật khẩu) --- */
+    /* --- MODAL CSS --- */
     .modal {
         display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%;
         background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center;
         backdrop-filter: blur(5px);
     }
     .modal-content {
-        background: #020205; border: 2px solid #ff3333; border-radius: 10px;
-        padding: 30px; text-align: center; position: relative; width: 90%; max-width: 400px;
-        box-shadow: 0 0 30px rgba(255, 51, 51, 0.3); color: #00f3ff;
-    }
-    .close-btn {
-        position: absolute; top: 10px; right: 15px; color: #ff3333; font-size: 24px; cursor: pointer;
-    }
-    .modal h2 { color: #ff3333; margin-top: 0; }
-    .modal p { color: rgba(0, 243, 255, 0.8); }
-    #passwordInput {
-        width: 80%; padding: 15px; margin: 20px 0; background: rgba(0,0,0,0.5);
-        border: 1px solid #00f3ff; color: #00f3ff; text-align: center; font-size: 18px; outline: none;
-    }
-    #submitPassword {
-        padding: 15px 30px; background: #ff3333; color: white; border: none; font-weight: bold;
-        cursor: pointer; transition: all 0.3s; box-shadow: 0 0 15px rgba(255, 51, 51, 0.5);
-    }
-    #submitPassword:hover { background: #cc0000; box-shadow: 0 0 30px rgba(255, 51, 51, 0.8); }
-
-</style>
-</head>
-<body>
-
-    <div class="avatar-container">
-        <div class="ring r1"></div>
-        <div class="ring r2"></div>
-        <div class="avatar"></div>
-   <h1>BÌNH PRO</h1>
-    <p>/// SYSTEM STATUS: ONLINE ///</p>
-
-    <div class="link-list">
-        <a href="ThaoDiCho.html" class="btn"><span>🛒</span>Thảo Đi Chợ</a>
-        <a href="GiaiCuuThao.html" class="btn"><span>❤️</span>Trò Chơi Giải Cứu Thảo</a>
-        <a href="FlappyRambo.html" class="btn"><span>🎮</span>Flappy Rambo</a>
-        <a href="quayso.html" class="btn"><span>🎁</span>Vòng Quay Mai Mắn</a>
-        <a href="dongy.html" class="menu-item">
-            <i class="fas fa-user-secret"></i> TRÒ CHƠI BÍ ẨN 🤫
-        </a>
-        
-        <div class="menu-item love-zone" id="loveZoneBtn">
-            <i class="fas fa-heart heartbeat"></i> <span style="margin-left: 10px;">NHỊP ĐẬP TÌNH YÊU</span>
-        </div>
-    </div> 
-
-    <div class="footer-bar">
-        <div class="scrolling-text">
-            /// WELCOME TO BINH PRO SYSTEM /// NƠI BÍ MẬT CỦA HAI TA /// HỆ THỐNG ĐANG HOẠT ĐỘNG 100% CÔNG SUẤT /// MUỐN BIẾT MẬT KHẨU NƠI BÍ MẬT HÃY THỬ ĐOÁN MẬT KHẨU NHA NGƯỜI ĐẸP 🤫 ///
-        </div>
-    </div>
-
-    <div id="passwordModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2><i class="fas fa-lock"></i> MẬT MÃ TRÁI TIM</h2>
-            <p>Nhập mật khẩu để mở khóa thế giới riêng của chúng ta.</p>
-            <input type="password" id="passwordInput" placeholder="Nhập mật khẩu...">
-            <button id="submitPassword">MỞ KHÓA <i class="fas fa-key"></i></button>
-            <p id="errorMessage" style="color: #ff4d4d; display: none; margin-top: 10px;">
-                <i class="fas fa-exclamation-circle"></i> Mật khẩu không đúng!
-            </p>
-        </div>
-    </div>
-
-    <div id="passwordModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2><i class="fas fa-lock"></i> MẬT MÃ TRÁI TIM</h2>
-            <p>Nhập mật khẩu để mở khóa thế giới riêng của chúng ta.</p>
-            <input type="password" id="passwordInput" placeholder="Nhập mật khẩu...">
-            <button id="submitPassword">MỞ KHÓA <i class="fas fa-key"></i></button>
-            <p id="errorMessage" style="color: #ff4d4d; display: none; margin-top: 10px;"><i class="fas fa-exclamation-circle"></i> Mật khẩu không đúng!</p>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
+        background:
